@@ -1,23 +1,8 @@
 "use client"
 
-import { useState } from "react"
 import { usePathname } from "next/navigation"
 import {
-  BarChart3,
-  CheckSquare,
-  CreditCard,
   FileText,
-  FolderKanban,
-  LayoutDashboard,
-  Settings,
-  Users,
-  FileAudio,
-  AlertTriangle,
-  Briefcase,
-  Calendar,
-  Building2,
-  Zap,
-  Command,
   Search,
   Home,
   Database,
@@ -38,7 +23,6 @@ import Link from "next/link"
 
 export function AppSidebar() {
   const pathname = usePathname()
-  const [aiModalOpen, setAIModalOpen] = useState(false)
 
   const mainItems = [
     {
