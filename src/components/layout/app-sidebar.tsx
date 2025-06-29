@@ -19,6 +19,9 @@ import {
   Zap,
   Command,
   Search,
+  Home,
+  Database,
+  Code,
 } from "lucide-react"
 import {
   Sidebar,
@@ -39,33 +42,33 @@ export function AppSidebar() {
 
   const mainItems = [
     {
-      name: "Main",
+      name: "메인",
       href: "/",
-      icon: LayoutDashboard,
+      icon: Home,
       isActive: pathname === "/",
     },
     {
-      name: "Collections",
+      name: "컬렉션",
       href: "/collections",
-      icon: FolderKanban,
+      icon: Database,
       isActive: pathname.startsWith("/collections"),
     },
     {
-      name: "Documents",
+      name: "문서",
       href: "/documents",
-      icon: CheckSquare,
+      icon: FileText,
       isActive: pathname.startsWith("/documents"),
     },
     {
-      name: "Search",
+      name: "검색",
       href: "/search",
       icon: Search,
       isActive: pathname.startsWith("/search"),
     },
     {
-      name: "API Tester",
+      name: "API 테스터",
       href: "/api-tester",
-      icon: Building2,
+      icon: Code,
       isActive: pathname.startsWith("/api-tester"),
     },
   ]

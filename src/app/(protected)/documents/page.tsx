@@ -301,28 +301,6 @@ export default function DocumentsPage() {
   const totalCharacters = documents.reduce((sum, doc) => sum + doc.content.length, 0)
   
 
-  if (collections.length === 0 && !loading) {
-    return (
-      <div className="min-h-screen p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="text-center py-12">
-            <FolderOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">컬렉션이 필요합니다</h2>
-            <p className="text-gray-500 mb-6">
-              문서를 업로드하기 전에 먼저 컬렉션을 생성해주세요.
-            </p>
-            <Button 
-              onClick={() => window.location.href = '/collections'}
-              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
-            >
-              <Database className="w-4 h-4 mr-2" />
-              컬렉션 페이지로 이동
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   // Loading skeleton component
   const LoadingSkeleton = () => (
@@ -507,7 +485,9 @@ export default function DocumentsPage() {
                     <CardDescription>
                       {((activeTab === 'documents' ? selectedDocuments : selectedChunks).length > 0) 
                         ? `${(activeTab === 'documents' ? selectedDocuments : selectedChunks).length}개 선택됨` 
-                        : `총 ${activeTab === 'documents' ? filteredDocumentGroups.length : filteredDocuments.length}개의 ${activeTab === 'documents' ? '문서' : '청크'}`}
+                        : activeTab === 'documents' 
+                          ? `총 ${filteredDocumentGroups.length}개의 문서`
+                          : `${filteredDocuments.length}/${documents.length}개의 청크`}
                     </CardDescription>
                   </div>
                   
