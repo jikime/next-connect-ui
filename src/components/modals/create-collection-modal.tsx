@@ -185,6 +185,7 @@ export function CreateCollectionModal({ open, onOpenChange, onSuccess }: CreateC
                   <Button 
                     type="submit" 
                     disabled={isLoading}
+                    size="sm"
                     className="flex-1 sm:flex-initial bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
                   >
                     {isLoading ? (

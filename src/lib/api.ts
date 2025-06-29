@@ -5,7 +5,6 @@
 import type { NextRequest } from "next/server"
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios"
 import api from "./axios"
-import { getSession } from "next-auth/react"
 
 type FetchOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
@@ -51,6 +50,25 @@ export async function fetchAPI<T = any>(endpoint: string, options: FetchOptions 
  * 서버 컴포넌트에서 사용할 API 요청 함수
  */
 export async function serverFetchAPI<T = any>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-  return fetchAPI<T>(endpoint, options)
+  return fetchAPI<T>(endpoint, {
+    ...options,
+    headers: {
+      ...options.headers,
+      "Content-Type": "application/json",
+    },
+  })
+}
+
+/**
+ * FormData 업로드를 위한 API 요청 함수
+ */
+export async function uploadFormData<T = any>(endpoint: string, formData: FormData): Promise<T> {
+  return fetchAPI<T>(endpoint, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    body: formData,
+  })
 }
 

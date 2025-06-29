@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/sidebar"
 import { NavMain } from "./nav-main"
 import { NavUser } from "./nav-user"
+import Link from "next/link"
 
 export function AppSidebar() {
   const pathname = usePathname()
@@ -76,14 +77,12 @@ export function AppSidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild>
-                <a href="#">
-                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <span className="text-md">🔗</span>
-                  </div>
+                <Link href="/">
+                  <div className="text-md">🔗</div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium text-lg">LangConnect</span>
                   </div>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
