@@ -11,9 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Badge } from '@/components/ui/badge'
-import ReactMarkdown from 'react-markdown'
-import remarkBreaks from 'remark-breaks'
-import remarkGfm from 'remark-gfm'
 
 interface Collection {
   uuid: string
@@ -172,27 +169,10 @@ export default function SearchPage() {
     })
   }
 
-  if (collections.length === 0) {
-    return (
-      <div className="min-h-screen p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="text-center py-12">
-            <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">컬렉션이 필요합니다</h2>
-            <p className="text-gray-500 mb-6">
-              검색을 사용하려면 먼저 컬렉션을 생성해주세요.
-            </p>
-            <Button 
-              onClick={() => window.location.href = '/collections'}
-              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
-            >
-              컬렉션 페이지로 이동
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
+  const convertNewlinesToBr = (text: string) => {
+    return text.replace(/\n/g, '<br>')
   }
+
 
   return (
     <div className="min-h-screen p-6">
@@ -400,27 +380,15 @@ export default function SearchPage() {
                     <div className="space-y-4">
                       <div>
                         <h4 className="font-medium text-sm text-gray-600 mb-2">내용:</h4>
-                        <div className={`text-gray-900 prose prose-sm max-w-none ${!expandedResults.has(index) ? 'line-clamp-3' : ''}`}>
-                          <ReactMarkdown 
-                            remarkPlugins={[remarkBreaks, remarkGfm]}
-                            components={{
-                              p: ({ children }) => <p className="mb-2">{children}</p>,
-                              br: () => <br />,
-                              ol: ({ children }) => <ol className="list-decimal list-outside mb-2 space-y-1 pl-6">{children}</ol>,
-                              ul: ({ children }) => <ul className="list-disc list-outside mb-2 space-y-1 pl-6">{children}</ul>,
-                              li: ({ children }) => <li>{children}</li>,
-                              h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
-                              h2: ({ children }) => <h2 className="text-base font-bold mb-2">{children}</h2>,
-                              h3: ({ children }) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
-                              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                              em: ({ children }) => <em className="italic">{children}</em>,
-                              code: ({ children }) => <code className="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
-                              pre: ({ children }) => <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto mb-2">{children}</pre>,
-                            }}
-                          >
-                            {result.page_content}
-                          </ReactMarkdown>
-                        </div>
+                        <div 
+                          className={`text-gray-900 max-w-none break-words overflow-wrap-anywhere word-break overflow-hidden prose prose-sm ${!expandedResults.has(index) ? 'line-clamp-3' : ''}`} 
+                          style={{ wordBreak: 'break-word', overflowWrap: 'break-word', hyphens: 'auto' }}
+                          dangerouslySetInnerHTML={{ 
+                            __html: expandedResults.has(index) 
+                              ? convertNewlinesToBr(result.page_content) 
+                              : result.page_content 
+                          }}
+                        />
                       </div>
                       
                       {expandedResults.has(index) && (
@@ -428,7 +396,7 @@ export default function SearchPage() {
                           {result.metadata && Object.keys(result.metadata).length > 0 && (
                             <div>
                               <h4 className="font-medium text-sm text-gray-600 mb-2">메타데이터:</h4>
-                              <pre className="text-xs bg-gray-50 p-3 rounded overflow-x-auto">
+                              <pre className="text-xs bg-gray-50 p-3 rounded whitespace-pre-wrap break-words overflow-hidden" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere', maxWidth: '100%' }}>
                                 {JSON.stringify(result.metadata, null, 2)}
                               </pre>
                             </div>

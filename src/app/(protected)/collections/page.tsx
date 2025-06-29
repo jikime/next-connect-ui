@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { RefreshCw, Plus, Trash2, Folder, FileText, Loader2, Database, FolderOpen, Archive, BookOpen } from 'lucide-react'
+import { RefreshCw, Plus, Trash2, Folder, FileText, Loader2, Database, FolderOpen, Archive, BookOpen, Info, X } from 'lucide-react'
 import { CollectionWithStats, Collection } from '@/types/collection'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,9 @@ export default function CollectionsPage() {
   const [selectedCollections, setSelectedCollections] = useState<string[]>([])
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  
+  // Popover states
+  const [openPopovers, setOpenPopovers] = useState<Set<string>>(new Set())
 
   const fetchCollections = useCallback(async () => {
     try {
@@ -147,6 +151,18 @@ export default function CollectionsPage() {
   const handleRefresh = () => {
     setRefreshing(true)
     fetchCollections()
+  }
+
+  const togglePopover = (collectionId: string, isOpen: boolean) => {
+    setOpenPopovers(prev => {
+      const newSet = new Set(prev)
+      if (isOpen) {
+        newSet.add(collectionId)
+      } else {
+        newSet.delete(collectionId)
+      }
+      return newSet
+    })
   }
 
 
@@ -270,7 +286,7 @@ export default function CollectionsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent flex items-center gap-3">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent flex items-center gap-3">
               <Database className="h-8 w-8 text-blue-500" />
               컬렉션 관리
             </h1>
@@ -452,10 +468,85 @@ export default function CollectionsPage() {
                                   <Folder className="h-4 w-4 text-white" />
                                 </div>
                               </div>
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">
-                                  {collection.name}
-                                </div>
+                              <div className="flex items-center gap-2">
+                                <Popover 
+                                  open={openPopovers.has(collection.uuid)}
+                                  onOpenChange={(isOpen) => togglePopover(collection.uuid, isOpen)}
+                                >
+                                  <PopoverTrigger asChild>
+                                    <button className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors cursor-pointer flex items-center gap-1">
+                                      {collection.name}
+                                      <Info className="h-3 w-3 text-gray-400" />
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-[500px] p-0" align="start">
+                                    <div className="p-4">
+                                      <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                          <Folder className="h-5 w-5 text-blue-500" />
+                                          {collection.name}
+                                        </h3>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => togglePopover(collection.uuid, false)}
+                                        >
+                                          <X className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                      
+                                      <div className="space-y-4">
+                                        {/* 기본 정보 */}
+                                        <div>
+                                          <h4 className="font-medium text-sm text-gray-600 mb-2">기본 정보</h4>
+                                          <div className="space-y-2 text-sm">
+                                            <div className="flex justify-between">
+                                              <span className="text-gray-500">UUID:</span>
+                                              <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">
+                                                {collection.uuid}
+                                              </code>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {/* 통계 정보 */}
+                                        <div>
+                                          <h4 className="font-medium text-sm text-gray-600 mb-2">통계</h4>
+                                          <div className="grid grid-cols-2 gap-3">
+                                            <div className="bg-blue-50 p-3 rounded-lg">
+                                              <div className="flex items-center gap-2 mb-1">
+                                                <FileText className="h-4 w-4 text-blue-500" />
+                                                <span className="text-sm font-medium text-blue-700">문서</span>
+                                              </div>
+                                              <div className="text-lg font-bold text-blue-900">
+                                                {collection.stats.documents}
+                                              </div>
+                                            </div>
+                                            <div className="bg-purple-50 p-3 rounded-lg">
+                                              <div className="flex items-center gap-2 mb-1">
+                                                <Archive className="h-4 w-4 text-purple-500" />
+                                                <span className="text-sm font-medium text-purple-700">청크</span>
+                                              </div>
+                                              <div className="text-lg font-bold text-purple-900">
+                                                {collection.stats.chunks}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {/* 메타데이터 */}
+                                        {collection.metadata && Object.keys(collection.metadata).length > 0 && (
+                                          <div>
+                                            <h4 className="font-medium text-sm text-gray-600 mb-2">메타데이터</h4>
+                                            <pre className="text-xs bg-gray-50 p-3 rounded overflow-x-auto whitespace-pre-wrap">
+                                              {JSON.stringify(collection.metadata, null, 2)}
+                                            </pre>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
                               </div>
                             </div>
                           </td>

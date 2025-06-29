@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { RefreshCw, Trash2, FileText, Loader2, Database, FolderOpen, Archive, BookOpen, Upload, File, Filter, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { RefreshCw, Trash2, FileText, Loader2, Database, FolderOpen, Archive, BookOpen, Upload, File, Filter, ChevronLeft, ChevronRight, X, Info } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -78,6 +78,7 @@ export default function DocumentsPage() {
   
   // Popover states
   const [openPopovers, setOpenPopovers] = useState<Set<string>>(new Set())
+  const [openSourcePopovers, setOpenSourcePopovers] = useState<Set<string>>(new Set())
 
   // Filtering states
   const [availableSources, setAvailableSources] = useState<string[]>([])
@@ -259,6 +260,18 @@ export default function DocumentsPage() {
         newSet.add(docId)
       } else {
         newSet.delete(docId)
+      }
+      return newSet
+    })
+  }
+
+  const toggleSourcePopover = (sourceId: string, isOpen: boolean) => {
+    setOpenSourcePopovers(prev => {
+      const newSet = new Set(prev)
+      if (isOpen) {
+        newSet.add(sourceId)
+      } else {
+        newSet.delete(sourceId)
       }
       return newSet
     })
@@ -604,10 +617,118 @@ export default function DocumentsPage() {
                                       <FileText className="h-4 w-4 text-white" />
                                     </div>
                                   </div>
-                                  <div>
-                                    <div className="text-sm font-medium text-gray-900">
-                                      {group.source}
-                                    </div>
+                                  <div className="flex items-center gap-2">
+                                    <Popover 
+                                      open={openSourcePopovers.has(group.file_id)}
+                                      onOpenChange={(isOpen) => toggleSourcePopover(group.file_id, isOpen)}
+                                    >
+                                      <PopoverTrigger asChild>
+                                        <button className="text-sm font-medium text-gray-900 hover:text-green-600 transition-colors cursor-pointer flex items-center gap-1">
+                                          {group.source}
+                                          <Info className="h-3 w-3 text-gray-400" />
+                                        </button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-[600px] p-0" align="start">
+                                        <div className="p-4">
+                                          <div className="flex items-center justify-between mb-4">
+                                            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                              <FileText className="h-5 w-5 text-green-500" />
+                                              {group.source}
+                                            </h3>
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              onClick={() => toggleSourcePopover(group.file_id, false)}
+                                            >
+                                              <X className="h-4 w-4" />
+                                            </Button>
+                                          </div>
+                                          
+                                          <div className="space-y-4">
+                                            {/* 기본 정보 */}
+                                            <div>
+                                              <h4 className="font-medium text-sm text-gray-600 mb-2">기본 정보</h4>
+                                              <div className="space-y-2 text-sm">
+                                                <div className="flex justify-between">
+                                                  <span className="text-gray-500">파일 ID:</span>
+                                                  <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">
+                                                    {group.file_id}
+                                                  </code>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                  <span className="text-gray-500">총 청크 수:</span>
+                                                  <span className="font-medium">{group.chunks.length}개</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                  <span className="text-gray-500">총 문자 수:</span>
+                                                  <span className="font-medium">{group.total_chars.toLocaleString()}자</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                  <span className="text-gray-500">생성일:</span>
+                                                  <span>{group.timestamp !== 'N/A' ? new Date(group.timestamp).toLocaleString('ko-KR') : 'N/A'}</span>
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            {/* 통계 정보 */}
+                                            <div>
+                                              <h4 className="font-medium text-sm text-gray-600 mb-2">통계</h4>
+                                              <div className="grid grid-cols-2 gap-3">
+                                                <div className="bg-green-50 p-3 rounded-lg">
+                                                  <div className="flex items-center gap-2 mb-1">
+                                                    <Archive className="h-4 w-4 text-green-500" />
+                                                    <span className="text-sm font-medium text-green-700">청크</span>
+                                                  </div>
+                                                  <div className="text-lg font-bold text-green-900">
+                                                    {group.chunks.length}
+                                                  </div>
+                                                  <div className="text-xs text-green-600">
+                                                    평균 {Math.round(group.total_chars / group.chunks.length)}자/청크
+                                                  </div>
+                                                </div>
+                                                <div className="bg-blue-50 p-3 rounded-lg">
+                                                  <div className="flex items-center gap-2 mb-1">
+                                                    <BookOpen className="h-4 w-4 text-blue-500" />
+                                                    <span className="text-sm font-medium text-blue-700">문자</span>
+                                                  </div>
+                                                  <div className="text-lg font-bold text-blue-900">
+                                                    {group.total_chars.toLocaleString()}
+                                                  </div>
+                                                  <div className="text-xs text-blue-600">
+                                                    총 문자 수
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            {/* 청크 목록 */}
+                                            <div>
+                                              <h4 className="font-medium text-sm text-gray-600 mb-2">청크 목록 ({group.chunks.length}개)</h4>
+                                              <ScrollArea className="h-40 w-full rounded border">
+                                                <div className="p-2 space-y-2">
+                                                  {group.chunks.map((chunk, index) => (
+                                                    <div key={chunk.id} className="text-xs border rounded p-2 bg-gray-50">
+                                                      <div className="flex justify-between items-start mb-1">
+                                                        <span className="font-mono text-gray-500">#{index + 1}</span>
+                                                        <code className="text-xs bg-white px-1 rounded">
+                                                          {chunk.id.slice(0, 8)}...
+                                                        </code>
+                                                      </div>
+                                                      <p className="text-gray-700 line-clamp-2">
+                                                        {chunk.content.slice(0, 100)}{chunk.content.length > 100 ? '...' : ''}
+                                                      </p>
+                                                      <div className="text-gray-500 mt-1">
+                                                        {chunk.content.length}자
+                                                      </div>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              </ScrollArea>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
                                   </div>
                                 </div>
                               </td>

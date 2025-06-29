@@ -8,8 +8,6 @@ export async function GET(request: Request) {
       method: "GET",
     })
 
-    console.log('response ===> ', response)
-
     return NextResponse.json({ success: true, data: response }, { status: 201 })
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 })
@@ -23,8 +21,6 @@ export async function POST(request: Request) {
       method: "POST",
       body: JSON.stringify(body),
     })
-
-    console.log('response ===> ', response)
 
     return NextResponse.json({ success: true, data: response }, { status: 201 })
   } catch (error: any) {

@@ -22,15 +22,21 @@ import {
 import { useSession } from "next-auth/react"
 import { useAuth } from "@/hooks/use-auth"
 import { useCallback } from "react"
+import { useRouter } from "next/navigation"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
   const { data: session } = useSession()
   const { logout } = useAuth()
+  const router = useRouter()
 
   const handleLogout = useCallback(async () => {
-    await logout();
-  }, [logout])
+    const result = await logout();
+    if (result.success) {
+      // 로그아웃 성공 시 로그인 페이지로 강제 이동
+      router.push('/signin');
+    }
+  }, [logout, router])
 
   return (
     <SidebarMenu>
