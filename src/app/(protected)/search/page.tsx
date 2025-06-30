@@ -11,23 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Badge } from '@/components/ui/badge'
-
-interface Collection {
-  uuid: string
-  name: string
-  metadata?: any
-}
-
-interface SearchResult {
-  id: string
-  page_content: string
-  metadata: {
-    source?: string
-    file_id?: string
-    [key: string]: any
-  }
-  score: number
-}
+import { Collection } from '@/types/collection'
+import { SearchResult } from '@/types/search'
 
 export default function SearchPage() {
   const [collections, setCollections] = useState<Collection[]>([])

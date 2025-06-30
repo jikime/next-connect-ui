@@ -14,7 +14,6 @@ export async function DELETE(
     const response = await serverFetchAPI(`/collections/${id}/documents/${documentId}?delete_by=${deleteBy}`, {
       method: "DELETE",
     })
-    console.log('response ===> ', response)
 
     return NextResponse.json({ success: true, data: response }, { status: 200 })
   } catch (error: any) {

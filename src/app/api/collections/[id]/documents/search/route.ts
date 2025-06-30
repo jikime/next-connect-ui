@@ -6,13 +6,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   
   try {
     const body = await request.json()
-    console.log('Search params ===> ', { id, body })
     
     const response = await serverFetchAPI(`/collections/${id}/documents/search`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(body),
     })
 

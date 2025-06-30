@@ -72,36 +72,27 @@ export default function CollectionsPage() {
               )
               const res = await documentsResponse.json()
               
-              console.log(`Fetching documents for ${collection.name} - offset: ${offset}, limit: ${limit}`)
-              console.log('Response:', res)
-              
               if (!res.success) {
-                console.error('Failed to fetch documents:', res)
                 break
               }
               
               const documents = res.data
               if (!documents || documents.length === 0) {
-                console.log('No more documents found')
                 break
               }
 
-              console.log(`Fetched ${documents.length} documents`)
               if (documents.length > 0 && offset === 0) {
-                console.log('First document structure:', JSON.stringify(documents[0], null, 2))
+                // console.log('First document structure:', JSON.stringify(documents[0], null, 2))
               }
               allDocuments.push(...documents)
 
               // If we got less than the limit, we've reached the end
               if (documents.length < limit) {
-                console.log('Reached end of documents')
                 break
               }
 
               offset += limit
             }
-
-            console.log(`Collection ${collection.name}: Total ${allDocuments.length} chunks fetched`)
             
             const totalChunks = allDocuments.length
             
@@ -115,8 +106,6 @@ export default function CollectionsPage() {
             })
             
             const totalDocuments = uniqueFileIds.size
-            console.log(`Collection ${collection.name}: ${totalDocuments} unique documents (by file_id), ${totalChunks} total chunks`)
-            console.log('Unique file_ids:', Array.from(uniqueFileIds))
             
             return {
               ...collection,

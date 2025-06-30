@@ -17,7 +17,6 @@ ENV NODE_ENV production
 ENV NEXTAUTH_SECRET=lang-connect-server-secret
 ENV NEXTAUTH_URL=http://localhost:3893
 ENV NEXT_PUBLIC_API_URL=http://localhost:8080
-ENV PORT=3893
 
 WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs

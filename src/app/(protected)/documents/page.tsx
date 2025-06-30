@@ -27,31 +27,9 @@ import {
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { UploadDocumentModal } from '@/components/modals/upload-document-modal'
+import { Collection } from '@/types/collection'
+import { Document, DocumentGroup } from '@/types/document'
 
-interface Collection {
-  uuid: string
-  name: string
-  metadata?: any
-}
-
-interface Document {
-  id: string
-  content: string
-  metadata: {
-    source?: string
-    file_id?: string
-    timestamp?: string
-    [key: string]: any
-  }
-}
-
-interface DocumentGroup {
-  source: string
-  file_id: string
-  chunks: Document[]
-  timestamp: string
-  total_chars: number
-}
 
 export default function DocumentsPage() {
   const [collections, setCollections] = useState<Collection[]>([])

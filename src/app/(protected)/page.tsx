@@ -127,6 +127,10 @@ export default function MainPage() {
                   <span className="text-xl">🎨</span>
                   <span><strong>Streamlit</strong> - 인터랙티브 사용자 인터페이스</span>
                 </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-xl">🎨</span>
+                  <span><strong>Next.js</strong> - 인터랙티브 사용자 인터페이스</span>
+                </li>
               </ul>
               <p className="text-gray-600 mt-4">
                 RAG (Retrieval-Augmented Generation) 애플리케이션 구축에 완벽합니다!
@@ -169,6 +173,18 @@ export default function MainPage() {
                   >
                     <Book className="w-4 h-4" />
                     문서
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/jikime/next-connect-ui"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900"
+                  >
+                    <Book className="w-4 h-4" />
+                    Next.js 클라이언트 UI
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </li>

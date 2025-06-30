@@ -11,23 +11,9 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
+import { APIEndpoint, APIResponse } from '@/types/api-tester'
 
-interface APIEndpoint {
-  id: string
-  name: string
-  method: 'GET' | 'POST' | 'DELETE' | 'PATCH'
-  path: string
-  description: string
-  params?: string[]
-  body?: boolean
-}
-
-interface APIResponse {
-  success: boolean
-  status: number
-  data?: any
-  error?: string
-}
 
 const API_ENDPOINTS = {
   health: [
@@ -91,6 +77,15 @@ const API_ENDPOINTS = {
       params: ['collection_id']
     },
     {
+      id: 'create-documents',
+      name: 'Create Documents',
+      method: 'POST' as const,
+      path: '/collections/{collection_id}/documents',
+      description: 'Create documents in collection',
+      params: ['collection_id'],
+      body: true
+    },
+    {
       id: 'delete-document',
       name: 'Delete Document',
       method: 'DELETE' as const,
@@ -125,6 +120,8 @@ export default function APITesterPage() {
   const [newMetadata, setNewMetadata] = useState('')
   const [collectionName, setCollectionName] = useState('')
   const [metadata, setMetadata] = useState('')
+  const [createDocCollectionName, setCreateDocCollectionName] = useState('')
+  const [createDocMetadata, setCreateDocMetadata] = useState('')
   const [loading, setLoading] = useState(false)
   const [response, setResponse] = useState<APIResponse | null>(null)
 
@@ -150,6 +147,8 @@ export default function APITesterPage() {
     setNewMetadata('')
     setCollectionName('')
     setMetadata('')
+    setCreateDocCollectionName('')
+    setCreateDocMetadata('')
   }, [selectedEndpoint])
 
   const buildRequestUrl = (endpoint: APIEndpoint): string => {
@@ -203,6 +202,20 @@ export default function APITesterPage() {
         
         return updateData
       
+      case 'create-documents':
+        try {
+          const metadataObj = createDocMetadata.trim() ? JSON.parse(createDocMetadata) : {}
+          return {
+            collection_name: createDocCollectionName,
+            metadata: metadataObj
+          }
+        } catch {
+          return {
+            collection_name: createDocCollectionName,
+            metadata: {}
+          }
+        }
+      
       case 'search-documents':
         const body: any = {
           query: searchQuery || 'test query',
@@ -246,21 +259,42 @@ export default function APITesterPage() {
       return
     }
 
+    // For create-documents, show message instead of sending request
+    if (endpoint.id === 'create-documents') {
+      toast.info('문서 업로드는 문서 페이지에서 문서 업로드를 사용하세요')
+      return
+    }
+
     setLoading(true)
     try {
       const url = buildRequestUrl(endpoint)
       const body = buildRequestBody(endpoint)
 
+      const headers: HeadersInit = {}
+      
       const options: RequestInit = {
         method: endpoint.method,
+        headers: headers
       }
 
       if (body && (endpoint.method === 'POST' || endpoint.method === 'PATCH')) {
-        options.body = JSON.stringify(body)
+        if (endpoint.id === 'create-documents') {
+          // For create-documents, use FormData
+          const formData = new FormData()
+          formData.append('collection_name', body.collection_name || '')
+          formData.append('metadata', JSON.stringify(body.metadata || {}))
+          
+          options.body = formData
+          // Don't set Content-Type header for FormData - let browser set it with boundary
+        } else {
+          options.body = JSON.stringify(body)
+          options.headers = {
+            ...headers,
+            'Content-Type': 'application/json'
+          }
+        }
       }
 
-      console.log('url ===> ', url)
-      console.log('options ===> ', options)
       const response = await fetch(url, options)
       const data = await response.json()
 
@@ -369,7 +403,7 @@ export default function APITesterPage() {
                   <Label htmlFor="collectionId">Collection ID</Label>
                   <Input
                     id="collectionId"
-                    placeholder="Enter collection ID"
+                    placeholder="컬렉션 ID를 입력하세요."
                     value={collectionId}
                     onChange={(e) => setCollectionId(e.target.value)}
                   />
@@ -381,7 +415,7 @@ export default function APITesterPage() {
                   <Label htmlFor="documentId">Document ID</Label>
                   <Input
                     id="documentId"
-                    placeholder="Enter document ID"
+                    placeholder="문서 ID를 입력하세요."
                     value={documentId}
                     onChange={(e) => setDocumentId(e.target.value)}
                   />
@@ -394,7 +428,7 @@ export default function APITesterPage() {
                     <Label htmlFor="searchQuery">검색어</Label>
                     <Input
                       id="searchQuery"
-                      placeholder="Enter search query"
+                      placeholder="검색어를 입력하세요."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -472,6 +506,41 @@ export default function APITesterPage() {
                 </div>
               )}
 
+              {currentEndpoint?.id === 'create-documents' && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="createDocCollectionName">Collection Name</Label>
+                    <Input
+                      id="createDocCollectionName"
+                      placeholder="컬렉션 이름을 입력하세요"
+                      value={createDocCollectionName}
+                      onChange={(e) => setCreateDocCollectionName(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="createDocMetadata">메타데이터 (JSON)</Label>
+                    <Textarea
+                      id="createDocMetadata"
+                      placeholder='{}'
+                      value={createDocMetadata}
+                      onChange={(e) => setCreateDocMetadata(e.target.value)}
+                      rows={4}
+                      className="font-mono text-sm"
+                    />
+                  </div>
+                  
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-700">
+                      ℹ️ 문서 생성은 문서 페이지에서 문서 업로드를 사용하세요
+                    </p>
+                    <Link href="/documents" className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-2">
+                      문서 페이지로 이동 →
+                    </Link>
+                  </div>
+                </div>
+              )}
+
               {currentEndpoint?.id === 'update-collection' && (
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -498,7 +567,7 @@ export default function APITesterPage() {
                 </div>
               )}
 
-              {currentEndpoint?.body && currentEndpoint.id !== 'search-documents' && currentEndpoint.id !== 'update-collection' && currentEndpoint.id !== 'create-collection' && (
+              {currentEndpoint?.body && currentEndpoint.id !== 'search-documents' && currentEndpoint.id !== 'update-collection' && currentEndpoint.id !== 'create-collection' && currentEndpoint.id !== 'create-documents' && (
                 <div className="space-y-2">
                   <Label htmlFor="requestBody">요청 본문 (JSON)</Label>
                   <Textarea

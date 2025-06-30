@@ -35,7 +35,6 @@ export const authOptions: NextAuthOptions = {
           
           return user as any
         } catch (error) {
-          console.log('error ===> ', error)
           return null
         }
       }
@@ -76,7 +75,6 @@ export const authOptions: NextAuthOptions = {
   events: {
     async signOut(message) {
       // 로그아웃 시 추가 정리 작업
-      console.log('User signed out:', message);
     }
   },
   secret: process.env.NEXTAUTH_SECRET,

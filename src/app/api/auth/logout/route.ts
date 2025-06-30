@@ -10,8 +10,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true }, { status: 201 })
   } catch (error: any) {
-    console.log('error ===> ', error)
-    console.error("회원가입 오류:", error)
     return NextResponse.json({ message: error.message || "회원가입 중 오류가 발생했습니다." }, { status: 500 })
   }
 }

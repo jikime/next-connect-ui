@@ -124,6 +124,13 @@
   textarea::placeholder {
     color: var(--color-gray-400);
   }
+  button:focus,
+  button:focus-visible {
+    outline: none !important;
+    box-shadow: var(--tw-shadow, 0 1px 2px 0 rgba(0, 0, 0, 0.05)) !important;
+    border-color: rgb(229, 231, 235) !important; /* border-gray-200 */
+    --tw-ring-offset-width: 0px !important;
+  }
   textarea:focus,
   textarea:focus-visible,
   input:focus,
