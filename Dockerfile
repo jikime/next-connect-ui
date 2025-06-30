@@ -4,6 +4,7 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 WORKDIR /app
+
 COPY package.json pnpm-lock.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --no-frozen-lockfile
 COPY . .
@@ -13,10 +14,9 @@ RUN pnpm run build
 FROM node:22-alpine AS runner
 ENV NODE_ENV production
 
-# Environment Variables
-ENV NEXTAUTH_SECRET=lang-connect-server-secret
-ENV NEXTAUTH_URL=http://localhost:3893
-ENV NEXT_PUBLIC_API_URL=http://localhost:8080
+# Environment Variables (can be overridden at runtime)
+ENV API_URL=http://api:8080
+ENV PORT=3893
 
 WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs
@@ -30,6 +30,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy .env file if it exists
+COPY --from=builder /app/.env* ./
 
 USER nextjs
 EXPOSE 3893
