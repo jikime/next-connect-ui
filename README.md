@@ -79,6 +79,7 @@ NEXTAUTH_SECRET=lang-connect-server-secret
 
 # API 서버 URL
 NEXT_PUBLIC_API_URL=http://localhost:8080
+API_URL=http://api:8080
 ```
 
 ### 4. 개발 서버 실행
@@ -115,23 +116,18 @@ docker run -p 3893:3893 next-langconnect-ui
 version: '3.8'
 
 services:
-  langconnect-ui:
-    build: .
+  nextjs:
+    build:
+      context: ./next-connect-ui
+      dockerfile: Dockerfile
+    container_name: next-connect-ui
+    restart: always
+    depends_on:
+      - api
     ports:
       - "3893:3893"
     environment:
-      - NEXTAUTH_SECRET=your-secret-key
-      - NEXTAUTH_URL=http://localhost:3893
-      - NEXT_PUBLIC_API_URL=http://langconnect-api:8080
-    depends_on:
-      - langconnect-api
-    networks:
-      - langconnect-network
-
-  langconnect-api:
-    image: langconnect-api:latest
-    ports:
-      - "8080:8080"
+      API_URL: http://api:8080
     networks:
       - langconnect-network
 
